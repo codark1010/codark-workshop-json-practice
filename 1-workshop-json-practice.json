@@ -1,0 +1,69 @@
+{
+  "name": "Workshop JSON Practice",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -528,
+        16
+      ],
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{\n  json: {\n    ticketCode: \"RPR-P61\",\n    customerLabel: \"  TRAINING DESK  \",\n    stockCount: 8,\n    needsReview: true,\n    technician: null,\n    asset: { code: \"FN-462\", equipmentClass: \"fan\" },\n    parts: [\"FILTER-Q8\", \"CLIP-M5\"],\n    notes: \" grille dusty | cable intact \"\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -304,
+        16
+      ],
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "jsCode": "return $input.all().map((item, index) => {\n  const record = item.json;\n  const cleanLabel = record.customerLabel.trim().toLowerCase();\n  return {\n    json: {\n      ticketCode: record.ticketCode,\n      partCount: record.parts.length,\n      firstPart: record.parts[0],\n      assetCode: record.asset.code,\n      cleanLabel,\n      labelTag: cleanLabel.replace(\" \", \"-\"),\n      noteSections: record.notes.split(\"|\").map(text => text.trim()),\n      hasCableNote: record.notes.includes(\"cable\"),\n      validAssetCode: /^[A-Z]{2}-\\d{3}$/.test(record.asset.code),\n      technicianMissing: record.technician === null,\n      stockIsNumber: typeof record.stockCount === \"number\"\n    },\n    pairedItem: { item: index }\n  };\n});\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -528,
+        -208
+      ],
+      "name": "Code in JavaScript1"
+    }
+  ],
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "nodeGroups": []
+}
